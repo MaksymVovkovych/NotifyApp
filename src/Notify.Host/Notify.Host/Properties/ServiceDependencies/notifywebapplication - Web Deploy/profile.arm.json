@@ -21,7 +21,7 @@
     },
     "resourceName": {
       "type": "string",
-      "defaultValue": "NotifyHost20240224151918",
+      "defaultValue": "notifywebapplication",
       "metadata": {
         "description": "Name of the main resource to be created by this template."
       }
