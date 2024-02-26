@@ -36,7 +36,7 @@ const App: React.FC = () => {
       formData.append('email', email);
       formData.append('file', file);
       // Замініть URL на URL вашого REST API контролера
-      const response = await axios.post('https://localhost:7178/api/Notify', formData, {
+      const response = await axios.post('https://notifywebapplication.azurewebsites.net/api/Notify', formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }

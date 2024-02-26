@@ -10,7 +10,23 @@ namespace Notify.Host.Models
 
         [Required(ErrorMessage = "File is required.")]
         [DataType(DataType.Upload)]
-        [FileExtensions(Extensions = ".docx", ErrorMessage = "Invalid file format. Only .docx files are allowed.")]
-        public Microsoft.AspNetCore.Http.IFormFile File { get; set; }
+        public IFormFile File { get; set; }
+
+        public bool IsValid()
+        {
+            if (string.IsNullOrEmpty(Email) || File == null)
+                return false;
+
+            // Перевірка типу файлу
+            var fileExtension = Path.GetExtension(File.FileName);
+            if (fileExtension != ".docx")
+                return false;
+
+            // Перевірка MIME-типу файлу (додатковий захист)
+            if (File.ContentType != "application/vnd.openxmlformats-officedocument.wordprocessingml.document")
+                return false;
+
+            return true;
+        }
     }
 }

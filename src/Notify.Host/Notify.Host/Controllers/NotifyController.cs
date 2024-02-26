@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Azure.Storage.Blobs;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.OpenApi.Expressions;
 using Notify.Host.Exceptions;
@@ -11,10 +12,14 @@ namespace Notify.Host.Controllers
     public class NotifyController : ControllerBase
     {
 
+        private readonly IConfiguration _configuration;
+
         ResponseDto _response;
-        public NotifyController()
+        public NotifyController(IConfiguration configuration)
         {
             _response = new ResponseDto();
+            _configuration = configuration;
+
         }
 
         [HttpPost]
@@ -23,7 +28,7 @@ namespace Notify.Host.Controllers
             try
             {
 
-                if (!ModelState.IsValid)
+                if (!formData.IsValid())
                 {
                     throw new RequestException("Error: Model is invalid.");
                 }
@@ -31,9 +36,18 @@ namespace Notify.Host.Controllers
                 string email = formData.Email;
                 var file = formData.File;
 
+                var connectionString = _configuration["BlobStorageSettings:ConnectionString"];
+                var containerName = _configuration["BlobStorageSettings:ContainerName"];
+                var blobServiceClient = new BlobServiceClient(connectionString);
+                var blobContainerClient = blobServiceClient.GetBlobContainerClient(containerName);
 
 
-
+                var fileName = formData.File.FileName;
+                var blobClient = blobContainerClient.GetBlobClient(fileName);
+                using (var fileStream = formData.File.OpenReadStream())
+                {
+                    await blobClient.UploadAsync(fileStream, true);
+                }
 
                 return _response;
             }
